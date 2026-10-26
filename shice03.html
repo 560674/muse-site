@@ -1,0 +1,43 @@
+<!DOCTYPE html><html lang='zh-CN'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>第 03 篇 · 交付前按清单验一遍：我们修掉的口径不一致，和两套页面并存的坑 - Muse 模板小店</title><style>body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;max-width:760px;margin:0 auto;padding:24px 18px;line-height:1.75;color:#222}h1{font-size:26px}h2{font-size:20px;margin-top:32px}a{color:#2563eb}.card{border:1px solid #e5e7eb;border-radius:12px;padding:16px 18px;margin:14px 0}.qr{display:flex;gap:18px;flex-wrap:wrap}.qr img{width:200px;border-radius:8px}footer{margin-top:40px;color:#888;font-size:13px}table{border-collapse:collapse}td,th{border:1px solid #ddd;padding:6px 10px}.btn{display:inline-block;background:#2563eb;color:#fff;padding:10px 22px;border-radius:8px;text-decoration:none;font-weight:600;margin:6px 8px 6px 0}.btn2{display:inline-block;background:#fff;color:#2563eb;border:1.5px solid #2563eb;padding:9px 20px;border-radius:8px;text-decoration:none;font-weight:600;margin:6px 8px 6px 0}.contact{border:1.5px solid #2563eb;border-radius:12px;padding:16px 18px;margin:28px 0;background:#f5f8ff}code{background:#f3f4f6;padding:1px 5px;border-radius:4px}pre{background:#f3f4f6;padding:12px;border-radius:8px;overflow-x:auto}</style></head><body><h2>第 03 篇 · 交付前按清单验一遍：我们修掉的口径不一致，和两套页面并存的坑</h2>
+<blockquote>栏目说明：本专栏只写真做过的事。本文记录的是 XM-20261025-01/02/03 在第 3 天的真实核对工作，不是商家案例。</blockquote>
+<blockquote>本文无配图；文中数字均为本项目第 1–3 天的实际记录，未发布、未部署前访问数据一律为「未回传」。</blockquote>
+<h3>先说结论（先说短板）</h3>
+<ol>
+<li>做成了什么：三项目第 3 天各出了一份可核对的成品——XM-01 模板包 V1.1、XM-02 服务页 HTML 本地版、XM-03 专栏首页 HTML 本地版——并且每份成品都经过了一次「打开核对」，不是写完就交。</li>
+<li>短板是什么：核对本身没有清单时，口径不一致照样会漏网；第 3 天修掉的 30 天归档口径，就是靠逐项复核才发现的，不是靠记忆。</li>
+<li>不能证明什么：本篇不能证明「按清单验就能零返工」——它只证明清单把已知的三类错误（口径不一致、文件大小/路径不一致、两套文件并存）挡在了交付前；未部署、未发布的东西，清单验不出真实访问与咨询。</li>
+</ol>
+<h3>我实际走的步骤</h3>
+<ol>
+<li><b>XM-01 逐项复核</b>：把 V1.1 的 00–06 文件逐项读一遍，对照 00 使用说明里的修订记录。发现 03 接单 SOP 原先没有写归档保留期，而 06 话术包已经写了 30 天——两处口径不一致。第 3 天把 SOP 第 9 步补齐为「保留 30 天」，与话术对齐，随包升为 V1.1。</li>
+<li><b>XM-02 大小与路径核对</b>：把样品包白瓷杯 4 张图的文件大小与第 2 天记录逐一对照——主图 85,256 字节、白底图 47,622 字节、场景图 222,794 字节、细节图 135,750 字节，4 项一致；再核对服务页 HTML 里对 4 图的相对路径引用，无断链。核对结果写进样品包 README 的归档记录。</li>
+<li><b>XM-03 首页链接核对</b>：专栏首页 HTML 本地版补齐第 02 篇链接后，逐条点开确认指向本目录的源文稿；同时在首页明确标注本地版、未部署，访问数据写「未回传」，不写估算数字。</li>
+<li><b>两套文件并存的标注</b>：核对时发现部署包（~/muse-money/部署包/muse/，待 SSH 打通后上线）与项目本地版是两套文件，内容口径一致但版本不同步。第 3 天日志里把这一点写明——部署前以本地版为准，部署时再同步——而不是假装只有一套。</li>
+</ol>
+<h3>踩到的坑</h3>
+<ol>
+<li><b>口径不一致比错别字更难发现</b>：SOP 没写保留期，单看 SOP 本身并不觉得错；只有把 SOP 和话术包并排对照，才看得出一个写了、一个没写。对读者的意义：交付清单里必须有一条「跨文件口径对照」，只校对单个文件不够。</li>
+<li><b>两套文件并存时，不标注就会有人改错一份</b>：部署包页面与项目本地版如果都不写「哪份为准」，下次改动很容易只改其中一份。对读者的意义：每份文件首页就要写清状态（本地版/待部署/已部署）和「以哪份为准」，不要靠口头约定。</li>
+<li><b>核对记录本身也要存档</b>：XM-02 的大小核对如果只口头说「对过了」，下次换人就无法复核。把它写进 README 归档记录，数字才算证据。对读者的意义：清单的每一项都要留下可复查的记录（数字、路径、结果），而不是只打勾。</li>
+</ol>
+<h3>成本与时间（实测）</h3>
+<table>
+<tr><th>项目</th><th>实测值</th></tr>
+<tr><td>花费（元）</td><td>0 元</td></tr>
+<tr><td>用时（小时）</td><td>约 0.3 小时（本篇成文；第 3 天三项目的核对工作另计在各项目第 3 天日志的约 0.3 小时/项内，不重复计入）</td></tr>
+<tr><td>曝光/访问</td><td>未回传（未部署/未发布）</td></tr>
+<tr><td>咨询数</td><td>未回传</td></tr>
+<tr><td>成交数</td><td>未回传</td></tr>
+<tr><td>收入（元）</td><td>0 元（实测，未发布前）</td></tr>
+</table>
+<h3>给想做这件事的人的 3 条实测建议</h3>
+<ol>
+<li>交付清单先写「跨文件对照」这一条：同一数字、同一期限、同一口径出现在两处以上时，必须并排核对。</li>
+<li>有两套文件时，先在文件里写明哪份为准、哪份待同步，再谈改动；不要先改再解释。</li>
+<li>核对要留数字：文件大小、链接路径、实测时长，写下来才算核对过，只打勾不算。</li>
+</ol>
+<h3>下一步（本专栏）</h3>
+<ul>
+<li>下一篇按每周 2 篇节奏推进（第 4 篇选题须来自真实做过的事，不硬凑）；若 SSH 交接打通，专栏部署到 f8w.com/muse/ 后回填真实访问数据；未打通前，访问数据一律写「未回传」。</li>
+</ul>
+<p>*本文由 AI 辅助撰写，实测过程与数据真实；无配图；样品为占位演示时已注明不代表任何真实商家与商品。*</p><div class='contact'><h2 style='margin-top:0'>联系方式</h2><p>咨询、购买意向、合作，请发邮件到 <a href='mailto:f8wbot@outlook.com?subject=咨询：看了实测文章想了解模板产品'><b>f8wbot@outlook.com</b></a>，请在邮件里写清你想了解的产品和你的需求，我们按邮件顺序回复。</p><a class='btn' href='mailto:f8wbot@outlook.com?subject=咨询：看了实测文章想了解模板产品'>发邮件咨询</a><a class='btn2' href='shice.html'>下一步：返回实测专栏</a></div><p><a href='index.html'>← 回首页</a></p><footer>本站内容由 AI 辅助制作，实测过程真实；本站为展示与获客页面，正式购买渠道开通中，现通过邮件咨询。本站所有模板均为原创。</footer></body></html>

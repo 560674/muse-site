@@ -1,0 +1,32 @@
+<!DOCTYPE html><html lang='zh-CN'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>不用装任何软件，云端就能出竖屏短片：我们的 Remotion 实测全记录 - Muse 模板小店</title><style>body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;max-width:760px;margin:0 auto;padding:24px 18px;line-height:1.75;color:#222}h1{font-size:26px}h2{font-size:20px;margin-top:32px}a{color:#2563eb}.card{border:1px solid #e5e7eb;border-radius:12px;padding:16px 18px;margin:14px 0}.qr{display:flex;gap:18px;flex-wrap:wrap}.qr img{width:200px;border-radius:8px}footer{margin-top:40px;color:#888;font-size:13px}table{border-collapse:collapse}td,th{border:1px solid #ddd;padding:6px 10px}.btn{display:inline-block;background:#2563eb;color:#fff;padding:10px 22px;border-radius:8px;text-decoration:none;font-weight:600;margin:6px 8px 6px 0}.btn2{display:inline-block;background:#fff;color:#2563eb;border:1.5px solid #2563eb;padding:9px 20px;border-radius:8px;text-decoration:none;font-weight:600;margin:6px 8px 6px 0}.contact{border:1.5px solid #2563eb;border-radius:12px;padding:16px 18px;margin:28px 0;background:#f5f8ff}code{background:#f3f4f6;padding:1px 5px;border-radius:4px}pre{background:#f3f4f6;padding:12px;border-radius:8px;overflow-x:auto}</style></head><body><h2>不用装任何软件，云端就能出竖屏短片：我们的 Remotion 实测全记录</h2>
+<blockquote>本专栏只写真做过的事。这篇的每一个数字，都来自我们实际交付过的成片。</blockquote>
+<h3>先说结论</h3>
+<p>一台本地电脑都不用碰，全部在云端：写代码定义画面、自动配音、代码生成配乐、渲染出 MP4。我们用这条线交付过 36 秒的婚礼微电影样片、60–70 秒的知识类短视频、121 秒的小说改编动态短剧，全部是竖屏 1080×1920。</p>
+<h3>这条线是怎么跑的</h3>
+<ol>
+<li>分镜先行：先写分镜表（每镜几秒、什么画面、什么字幕），不直接开渲</li>
+<li>素材：场景图用 AI 生成，守一条线——展示样片不出现正脸</li>
+<li>合成：用 Remotion（React 写视频的框架）把画面、运镜、字幕、旁白、配乐拼成时间线</li>
+<li>配乐：用代码合成钢琴/古筝音色，不碰有版权的现成歌曲</li>
+<li>渲染后验收：实测成片文件时长、逐段听音轨，确认没有无声段再交付</li>
+</ol>
+<h3>实测数据（真实交付记录）</h3>
+<ul>
+<li>婚礼微电影样片：36 秒，9 镜，4 张 AI 场景图，模板成熟后单条人工约 25 分钟</li>
+<li>知识类短视频：单条 59–71 秒，含结尾互动幕</li>
+<li>小说改编测试片：121 秒，12 镜，4 张图撑全片（这也是它的短板，见下）</li>
+</ul>
+<h3>踩过的坑（这才是这篇最值钱的部分）</h3>
+<ol>
+<li>渲染前不核对磁盘文件时长，就会翻车：我们有一次配音文件被后台重跑覆盖，成片出现无声段，返工重渲。之后立了规矩——交付前必须以磁盘上的实际文件实测时长和音轨为准。</li>
+<li>图太少撑长片会露馅：121 秒只用 4 张图，靠运镜和分镜切分能撑住，但画面复用肉眼可见。长片要么加图，要么缩时长，别硬撑。</li>
+<li>图上的文字最容易出错：AI 生成图里的牌匾、招牌文字经常是错的，要么避开带字画面，要么后期修掉。</li>
+<li>字体要单独存档：换环境渲染时字体丢失会让字幕样式全变，字体文件要跟工程一起归档。</li>
+</ol>
+<h3>谁适合这条线</h3>
+<ul>
+<li>想批量出同结构短视频的人（知识号、模板化接单）</li>
+<li>本地电脑配置一般、或者不想在本地装一堆软件的人</li>
+</ul>
+<p>不适合：追求真人实拍质感、或每条都要完全不同结构的创作。</p>
+<p>本文由 AI 辅助撰写，实测过程与数据真实，来自本专栏作者团队的实际交付记录。</p><div class='contact'><h2 style='margin-top:0'>联系方式</h2><p>咨询、购买意向、合作，请发邮件到 <a href='mailto:f8wbot@outlook.com?subject=咨询：看了实测文章想了解模板产品'><b>f8wbot@outlook.com</b></a>，请在邮件里写清你想了解的产品和你的需求，我们按邮件顺序回复。</p><a class='btn' href='mailto:f8wbot@outlook.com?subject=咨询：看了实测文章想了解模板产品'>发邮件咨询</a><a class='btn2' href='shice.html'>下一步：返回实测专栏</a></div><p><a href='index.html'>← 回首页</a></p><footer>本站内容由 AI 辅助制作，实测过程真实；本站为展示与获客页面，正式购买渠道开通中，现通过邮件咨询。本站所有模板均为原创。</footer></body></html>
