@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>烬原战纪 - 原创传奇类网页小游戏</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#14100c;color:#f3e9d2;font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif}
+.wrap{max-width:1060px;margin:0 auto;padding:14px 12px 28px}
+h1{font-size:24px;margin:6px 0 2px;color:#ffcf6e}.sub{color:#b8a888;font-size:13px;margin:0 0 12px}
+a{color:#ffcf6e}
+.layout{display:flex;gap:12px;flex-wrap:wrap}
+.stage{flex:1 1 620px;min-width:300px}
+canvas{width:100%;background:#1d1712;border:2px solid #6b543a;border-radius:10px;display:block;touch-action:none}
+.side{flex:0 1 300px;min-width:260px}
+.panel{background:#211a13;border:1px solid #4a3a26;border-radius:10px;padding:12px 14px;margin-bottom:12px}
+.panel h3{margin:0 0 8px;font-size:15px;color:#ffcf6e}
+.stat{display:flex;justify-content:space-between;font-size:13px;padding:2px 0;color:#e8dcc0}
+.bar{height:12px;background:#3a2e1e;border-radius:6px;overflow:hidden;margin:4px 0 8px}
+.bar>i{display:block;height:100%;background:#c0392b;transition:width.15s}
+.bar.exp>i{background:#3f7fbf}.bar.mp>i{background:#5b4fbf}
+button{background:#8a5a1e;color:#fff;border:1px solid #c98f3a;border-radius:8px;padding:9px 12px;font-size:14px;cursor:pointer;margin:3px 2px}
+button:hover{background:#a56f26}button:disabled{opacity:.45;cursor:not-allowed}
+button.ghost{background:#2a2115;color:#e8dcc0;border-color:#6b543a}
+.classes{display:flex;gap:8px;flex-wrap:wrap}
+.cls{flex:1;min-width:120px;text-align:left;line-height:1.5}
+.cls b{font-size:15px}.cls small{color:#d8c9a3;display:block}
+#log{height:132px;overflow-y:auto;font-size:12.5px;line-height:1.65;color:#d8c9a3}
+#bag{font-size:13px;line-height:1.6}
+.item{padding:5px 7px;border:1px solid #4a3a26;border-radius:7px;margin:5px 0;display:flex;justify-content:space-between;gap:6px;align-items:center}
+.r0{color:#cfcfcf}.r1{color:#6ec1ff}.r2{color:#c792ff}.r3{color:#ffb347}
+.touch{display:none;gap:8px;margin-top:10px}
+.touch button{flex:1;padding:14px 6px;font-size:15px}
+@media (pointer:coarse){.touch{display:flex}}
+.keys{font-size:12px;color:#9d8f73;line-height:1.7}
+footer{margin-top:14px;color:#8a7c62;font-size:12px;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>烬原战纪</h1>
+<p class="sub">原创传奇类网页小游戏 · 打怪爆装 · 光柱掉落 · 升级打 Boss —— 代码、美术、名称均为原创，浏览器存档，无需下载。<a href="index.html">返回小店首页</a></p>
+
+<div id="pick" class="panel">
+<h3>选择职业</h3>
+<div class="classes">
+<button class="cls" onclick="startGame('warrior')"><b>🗡️ 烬刃战士</b><small>近战 · 血厚攻稳 · 技能：裂地斩（范围伤害）</small></button>
+<button class="cls" onclick="startGame('mage')"><b>🔥 星火法师</b><small>远程 · 爆发高血薄 · 技能：星火雨（全屏打击）</small></button>
+<button class="cls" onclick="startGame('ranger')"><b>🏹 雾林游侠</b><small>远程 · 攻速快易暴击 · 技能：连珠箭（多重射击）</small></button>
+</div>
+<p class="keys" id="oldSave"></p>
+</div>
+
+<div class="layout">
+<div class="stage">
+<canvas id="cv" width="960" height="540"></canvas>
+<div class="touch">
+<button onclick="doAttack()">攻击</button>
+<button onclick="doSkill()">技能</button>
+<button onclick="doPotion()">喝药</button>
+<button id="autoBtn2" onclick="toggleAuto()">自动战斗：关</button>
+</div>
+<p class="keys">操作：WASD / 方向键移动 · J 或点击怪物攻击 · K 放技能 · H 喝药 · 点地面也可移动。怪死后装备会带光柱掉在地上，走过去自动拾取，优于当前装备的会自动换上，其余进背包可手动穿。</p>
+</div>
+<div class="side">
+<div class="panel">
+<h3>角色</h3>
+<div class="stat"><span id="pName">未创建</span><span id="pLv">Lv.1</span></div>
+<div class="stat"><span>生命</span><span id="hpTxt">-</span></div>
+<div class="bar"><i id="hpBar" style="width:100%"></i></div>
+<div class="stat"><span>法力</span><span id="mpTxt">-</span></div>
+<div class="bar mp"><i id="mpBar" style="width:100%"></i></div>
+<div class="stat"><span>经验</span><span id="expTxt">-</span></div>
+<div class="bar exp"><i id="expBar" style="width:0%"></i></div>
+<div class="stat"><span>攻击 / 防御</span><span id="atkTxt">-</span></div>
+<div class="stat"><span>金币</span><span id="goldTxt">0</span></div>
+<div class="stat"><span>波次 / 击杀</span><span id="waveTxt">- / 0</span></div>
+<div class="stat"><span>药水</span><span id="potTxt">3 瓶</span></div>
+<button onclick="doAttack()">攻击 (J)</button>
+<button onclick="doSkill()">技能 (K)</button>
+<button onclick="doPotion()">喝药 (H)</button>
+<button id="autoBtn" class="ghost" onclick="toggleAuto()">自动战斗：关</button>
+<button class="ghost" onclick="resetSave()">删档重开</button>
+</div>
+<div class="panel"><h3>当前装备</h3><div id="equip">暂无</div></div>
+<div class="panel"><h3>背包（点击穿戴）</h3><div id="bag">空</div></div>
+<div class="panel"><h3>战报</h3><div id="log"></div></div>
+</div>
+</div>
+<footer>《烬原战纪》为本站原创小游戏原型：玩法为品类通用思路，代码、画面（Canvas 程序绘制）、怪物与装备名称均为原创，与任何现有游戏无关。进度只存在你本机浏览器里，清缓存会丢失。反馈：<a href="mailto:f8wbot@outlook.com?subject=烬原战纪反馈">f8wbot@outlook.com</a></footer>
+</div>
+
+<script>
+'use strict';
+var cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+var W=960,H=540;
+var CLASSES={
+warrior:{name:'烬刃战士',hp:160,mp:40,atk:16,def:8,range:62,speed:3.1,color:'#e0653a',skillCost:15,skillName:'裂地斩'},
+mage:{name:'星火法师',hp:95,mp:110,atk:22,def:3,range:230,speed:2.7,color:'#ff9f2e',skillCost:30,skillName:'星火雨'},
+ranger:{name:'雾林游侠',hp:115,mp:60,atk:14,def:5,range:200,speed:3.6,color:'#6fbf5a',skillCost:20,skillName:'连珠箭'}
+};
+var MONSTERS=[
+{name:'灰烬鼠',hp:34,atk:6,def:1,exp:14,gold:6,speed:1.15,r:16,color:'#8d8578'},
+{name:'石甲虫',hp:62,atk:8,def:4,exp:22,gold:10,speed:0.8,r:20,color:'#7a6a53'},
+{name:'夜翼蝠',hp:46,atk:11,def:2,exp:26,gold:12,speed:1.7,r:15,color:'#5f5aa8'},
+{name:'熔砂蛮兽',hp:110,atk:14,def:6,exp:44,gold:22,speed:0.95,r:24,color:'#b3543a'}
+];
+var BOSS={name:'烬原巨像 · 阿迦',hp:620,atk:20,def:9,exp:260,gold:180,speed:0.65,r:42,color:'#d42e2e'};
+var RARITY=[{n:'普通',c:'#cfcfcf',m:1},{n:'精良',c:'#6ec1ff',m:1.45},{n:'史诗',c:'#c792ff',m:2.1},{n:'传说',c:'#ffb347',m:3.2}];
+var SLOTS=[{k:'weapon',n:'武器',pre:['烬纹刀','星尘杖','雾影弓','裂土斧','霜河剑']},{k:'armor',n:'铠甲',pre:['灰岩甲','星织袍','林影衣','熔心铠']},{k:'amulet',n:'吊坠',pre:['余烬坠','星砂坠','风语坠','地心坠']}];
+var S=null; // game state
+var keys={},drops=[],monsters=[],shots=[],floats=[];
+var auto=false,lastAtk=0,lastSkill=0,spawnTimer=0,rafId=null;
+
+function rnd(a,b){return a+Math.random()*(b-a)}
+function irnd(a,b){return Math.floor(rnd(a,b+1))}
+function log(msg){var el=document.getElementById('log');var d=document.createElement('div');d.innerHTML=msg;el.prepend(d);while(el.children.length>40)el.removeChild(el.lastChild)}
+function save(){if(!S)return;try{localStorage.setItem('jinyuan_save',JSON.stringify(S))}catch(e){}}
+function load(){try{var s=localStorage.getItem('jinyuan_save');return s?JSON.parse(s):null}catch(e){return null}}
+
+function newPlayer(cls){
+var c=CLASSES[cls];
+return {cls:cls,x:W/2,y:H/2,hp:c.hp,maxhp:c.hp,mp:c.mp,maxmp:c.mp,atk:c.atk,def:c.def,lv:1,exp:0,gold:0,kills:0,wave:1,potions:3,
+equip:{weapon:null,armor:null,amulet:null},bag:[]};
+}
+function bonus(){var b={atk:0,def:0,hp:0};for(var k in S.equip){var it=S.equip[k];if(it){b.atk+=it.atk||0;b.def+=it.def||0;b.hp+=it.hp||0}}return b}
+function eff(){var c=CLASSES[S.cls],b=bonus();return {atk:c.atk+(S.lv-1)*3+b.atk,def:c.def+(S.lv-1)*1+b.def,maxhp:c.hp+(S.lv-1)*18+b.hp,maxmp:c.mp,range:c.range,speed:c.speed}}
+function startGame(cls){
+var old=load();
+if(old&&old.cls===cls&&confirm('检测到同职业存档，继续存档？点“取消”开新档。')){S=old}
+else{S=newPlayer(cls)}
+drops=[];monsters=[];shots=[];floats=[];
+document.getElementById('pick').style.display='none';
+log('⚔️ '+CLASSES[cls].name+' 踏入烬原。目标：活过一波波怪潮，每 5 波迎战 Boss。');
+spawnWave();refresh();loop();
+}
+function spawnWave(){
+var n=3+S.wave;
+if(S.wave%5===0){spawnMonster(BOSS,true);log('👹 Boss 出现：<b style="color:#ff6b6b">'+BOSS.name+'</b>，击杀必掉高品质装备！');}
+for(var i=0;i<n;i++){var t=MONSTERS[Math.min(MONSTERS.length-1,irnd(0,Math.floor(S.wave/2)+1))];spawnMonster(t,false)}
+}
+function spawnMonster(t,boss){
+var side=irnd(0,3),x,y;
+if(side===0){x=rnd(30,W-30);y=24}else if(side===1){x=rnd(30,W-30);y=H-24}else if(side===2){x=24;y=rnd(30,H-30)}else{x=W-24;y=rnd(30,H-30)}
+var scale=1+(S.wave-1)*0.16;
+monsters.push({name:t.name,x:x,y:y,r:t.r,color:t.color,boss:!!boss,speed:t.speed*rnd(0.85,1.15),atk:Math.round(t.atk*scale),def:t.def,exp:Math.round(t.exp*scale),gold:Math.round(t.gold*scale),hp:Math.round(t.hp*scale),maxhp:Math.round(t.hp*scale),hitT:0});
+}
+function nearest(){var best=null,bd=1e9;for(var i=0;i<monsters.length;i++){var m=monsters[i],d=Math.hypot(m.x-S.x,m.y-S.y);if(d<bd){bd=d;best=m}}return {m:best,d:bd}}
+function damage(m,amt,crit){
+amt=Math.max(1,Math.round(amt-m.def*rnd(0.4,0.8)));
+if(crit)amt=Math.round(amt*1.8);
+m.hp-=amt;m.hitT=6;
+floats.push({x:m.x,y:m.y-m.r-6,txt:(crit?'暴击 ':'')+'-'+amt,c:crit?'#ffd23e':'#fff',t:40});
+if(m.hp<=0)kill(m);
+}
+function kill(m){
+monsters.splice(monsters.indexOf(m),1);S.kills++;
+var g=m.gold+irnd(0,6);S.gold+=g;gainExp(m.exp);
+floats.push({x:m.x,y:m.y,txt:'+'+g+' 金',c:'#ffcf6e',t:45});
+if(Math.random()<0.22&&S.potions<9){S.potions++;log('🧪 掉落药水，已收下（共 '+S.potions+' 瓶）')}
+var dropRate=m.boss?1:(0.34+S.wave*0.01);
+if(Math.random()<dropRate){var it=makeItem(m.boss);drops.push({x:m.x+rnd(-14,14),y:m.y+rnd(-10,10),item:it,t:0});log('✨ 爆装：<span style="color:'+RARITY[it.r].c+'">'+it.name+'</span> 掉在地上，走过去拾取！')}
+if(monsters.length===0){S.wave++;log('🌊 第 '+S.wave+' 波怪潮来袭');setTimeout(spawnWave,700)}
+save();refresh();
+}
+function makeItem(boss){
+var slot=SLOTS[irnd(0,SLOTS.length-1)];
+var r=boss?(Math.random()<0.45?3:2):(Math.random()<0.06?3:Math.random()<0.2?2:Math.random()<0.45?1:0);
+var base=3+S.wave*1.6;
+var it={slot:slot.k,slotName:slot.n,r:r,name:slot.pre[irnd(0,slot.pre.length-1)]+' · '+RARITY[r].n,atk:0,def:0,hp:0};
+if(slot.k==='weapon')it.atk=Math.round(base*1.4*RARITY[r].m);
+if(slot.k==='armor'){it.def=Math.round(base*0.8*RARITY[r].m);it.hp=Math.round(base*3*RARITY[r].m)}
+if(slot.k==='amulet'){it.atk=Math.round(base*0.6*RARITY[r].m);it.hp=Math.round(base*1.6*RARITY[r].m)}
+return it;
+}
+function score(it){return (it.atk||0)*3+(it.def||0)*3+(it.hp||0)}
+function pickup(d){
+var it=d.item,cur=S.equip[it.slot];
+if(!cur||score(it)>score(cur)){if(cur)S.bag.push(cur);S.equip[it.slot]=it;log('🎽 自动换上：<span style="color:'+RARITY[it.r].c+'">'+it.name+'</span>（攻+'+it.atk+' 防+'+it.def+' 血+'+it.hp+'）')}
+else{S.bag.push(it);log('🎒 收入背包：<span style="color:'+RARITY[it.r].c+'">'+it.name+'</span>')}
+drops.splice(drops.indexOf(d),1);save();refresh();
+}
+function equipFromBag(i){
+var it=S.bag[i];if(!it)return;var cur=S.equip[it.slot];S.bag.splice(i,1);if(cur)S.bag.push(cur);S.equip[it.slot]=it;
+var e=eff();S.hp=Math.min(S.hp,e.maxhp);log('🎽 穿上 '+it.name);save();refresh();
+}
+function gainExp(v){
+S.exp+=v;var need=S.lv*80;
+while(S.exp>=need){S.exp-=need;S.lv++;need=S.lv*80;var e=eff();S.hp=e.maxhp;S.mp=e.maxmp;log('⬆️ 升级到 '+S.lv+' 级！生命法力回满，属性提升。');if(S.lv%3===0){S.potions+=2;log('🎁 升级奖励：药水 +2')}}
+}
+function doAttack(){
+if(!S)return;var now=Date.now();var cd=S.cls==='ranger'?260:420;if(now-lastAtk<cd)return;
+var t=nearest();if(!t.m)return;var e=eff();
+if(t.d>e.range+ t.m.r){floats.push({x:S.x,y:S.y-34,txt:'太远了',c:'#bbb',t:25});return}
+lastAtk=now;
+var crit=Math.random()<(S.cls==='ranger'?0.3:0.12);
+if(S.cls==='warrior'){damage(t.m,rnd(e.atk*0.85,e.atk*1.2),crit)}
+else{shots.push({x:S.x,y:S.y,tx:t.m.x,ty:t.m.y,m:t.m,amt:rnd(e.atk*0.85,e.atk*1.2),crit:crit,c:CLASSES[S.cls].color})}
+refresh();
+}
+function doSkill(){
+if(!S)return;var c=CLASSES[S.cls];var now=Date.now();if(now-lastSkill<2500)return;
+if(S.mp<c.skillCost){floats.push({x:S.x,y:S.y-34,txt:'法力不足',c:'#8fb7ff',t:30});return}
+lastSkill=now;S.mp-=c.skillCost;var e=eff();
+log('💥 '+c.skillName+'！');
+if(S.cls==='warrior'){for(var i=monsters.length-1;i>=0;i--){var m=monsters[i];if(Math.hypot(m.x-S.x,m.y-S.y)<130)damage(m,e.atk*1.5,false)}}
+else if(S.cls==='mage'){for(var j=monsters.length-1;j>=0;j--)damage(monsters[j],e.atk*1.1,false)}
+else{var sorted=monsters.slice(0,5);for(var k=0;k<sorted.length;k++)shots.push({x:S.x,y:S.y,tx:sorted[k].x,ty:sorted[k].y,m:sorted[k],amt:e.atk*1.05,crit:Math.random()<0.3,c:'#a5ff8a'})}
+refresh();
+}
+function doPotion(){
+if(!S||S.potions<=0)return;var e=eff();if(S.hp>=e.maxhp)return;
+S.potions--;S.hp=Math.min(e.maxhp,S.hp+Math.round(e.maxhp*0.45));floats.push({x:S.x,y:S.y-34,txt:'+药水回复',c:'#7dff8a',t:35});save();refresh();
+}
+function toggleAuto(){auto=!auto;document.getElementById('autoBtn').textContent='自动战斗：'+(auto?'开':'关');var b2=document.getElementById('autoBtn2');if(b2)b2.textContent='自动战斗：'+(auto?'开':'关');log(auto?'🤖 自动战斗开启：自动走位、攻击、放技能、喝药。':'🤖 自动战斗关闭。')}
+function resetSave(){if(confirm('确定删档重开？')){try{localStorage.removeItem('jinyuan_save')}catch(e){}location.reload()}}
+function die(){log('💀 你倒在了第 '+S.wave+' 波。等级与装备保留，复活回满状态继续。');var e=eff();S.hp=e.maxhp;S.mp=e.maxmp;S.x=W/2;S.y=H/2;S.gold=Math.max(0,S.gold-20);save();refresh()}
+
+function step(){
+if(!S)return;
+var e=eff(),c=CLASSES[S.cls];
+S.mp=Math.min(c.mp,S.mp+0.06);
+var mx=0,my=0;
+if(keys['w']||keys['arrowup'])my-=1;if(keys['s']||keys['arrowdown'])my+=1;
+if(keys['a']||keys['arrowleft'])mx-=1;if(keys['d']||keys['arrowright'])mx+=1;
+if(auto){
+var t=nearest();
+if(t.m){if(t.d>e.range*0.8){mx=t.m.x-S.x;my=t.m.y-S.y}else{doAttack();if(S.mp>=c.skillCost&&Math.random()<0.02)doSkill()}}
+if(S.hp<e.maxhp*0.32)doPotion();
+// walk to drops
+if(drops.length&&(!t.m||t.d>260)){var d0=drops[0];mx=d0.x-S.x;my=d0.y-S.y}
+}
+if(mx||my){var l=Math.hypot(mx,my);S.x+=mx/l*e.speed;S.y+=my/l*e.speed}
+if(window._target){var dx=window._target.x-S.x,dy=window._target.y-S.y;if(Math.hypot(dx,dy)>8){S.x+=dx/Math.hypot(dx,dy)*e.speed;S.y+=dy/Math.hypot(dx,dy)*e.speed}else window._target=null}
+S.x=Math.max(20,Math.min(W-20,S.x));S.y=Math.max(20,Math.min(H-20,S.y));
+// monsters chase & hit
+for(var i=0;i<monsters.length;i++){var m=monsters[i];var dx2=S.x-m.x,dy2=S.y-m.y,dd=Math.hypot(dx2,dy2);
+if(dd>m.r+16){m.x+=dx2/dd*m.speed;m.y+=dy2/dd*m.speed}
+else if(Math.random()<0.03){var hurt=Math.max(1,m.atk-e.def);S.hp-=hurt;floats.push({x:S.x,y:S.y-30,txt:'-'+hurt,c:'#ff8a8a',t:30});if(S.hp<=0){die();return}}
+if(m.hitT>0)m.hitT--;
+}
+// shots
+for(var j=shots.length-1;j>=0;j--){var s=shots[j];if(monsters.indexOf(s.m)<0){shots.splice(j,1);continue}
+s.x+=(s.m.x-s.x)*0.35;s.y+=(s.m.y-s.y)*0.35;
+if(Math.hypot(s.m.x-s.x,s.m.y-s.y)<12){damage(s.m,s.amt,s.crit);shots.splice(j,1)}}
+// drops pickup
+for(var k=drops.length-1;k>=0;k--){var dr=drops[k];dr.t++;if(Math.hypot(dr.x-S.x,dr.y-S.y)<30)pickup(dr)}
+refreshBars();
+}
+function refreshBars(){
+if(!S)return;var e=eff();
+document.getElementById('hpBar').style.width=Math.max(0,S.hp/e.maxhp*100)+'%';
+document.getElementById('hpTxt').textContent=Math.max(0,Math.round(S.hp))+' / '+e.maxhp;
+document.getElementById('mpBar').style.width=(S.mp/CLASSES[S.cls].mp*100)+'%';
+document.getElementById('mpTxt').textContent=Math.floor(S.mp)+' / '+CLASSES[S.cls].mp;
+document.getElementById('expBar').style.width=(S.exp/(S.lv*80)*100)+'%';
+}
+function refresh(){
+if(!S)return;var e=eff();
+document.getElementById('pName').textContent=CLASSES[S.cls].name;
+document.getElementById('pLv').textContent='Lv.'+S.lv;
+document.getElementById('expTxt').textContent=S.exp+' / '+(S.lv*80);
+document.getElementById('atkTxt').textContent=e.atk+' / '+e.def;
+document.getElementById('goldTxt').textContent=S.gold;
+document.getElementById('waveTxt').textContent=S.wave+' / '+S.kills;
+document.getElementById('potTxt').textContent=S.potions+' 瓶';
+var eq='';for(var k in S.equip){var it=S.equip[k];eq+='<div class="stat"><span>'+({weapon:'武器',armor:'铠甲',amulet:'吊坠'})[k]+'</span><span>'+(it?'<span style="color:'+RARITY[it.r].c+'">'+it.name+'</span> 攻'+it.atk+' 防'+it.def+' 血'+it.hp:'无')+'</span></div>'}
+document.getElementById('equip').innerHTML=eq;
+var bag=document.getElementById('bag');
+if(!S.bag.length)bag.innerHTML='空';
+else{bag.innerHTML='';S.bag.forEach(function(it,idx){var d=document.createElement('div');d.className='item';d.innerHTML='<span class="r'+it.r+'">'+it.name+'<br><small>攻'+it.atk+' 防'+it.def+' 血'+it.hp+'</small></span>';var b=document.createElement('button');b.textContent='穿戴';b.onclick=function(){equipFromBag(idx)};d.appendChild(b);bag.appendChild(d)})}
+refreshBars();
+}
+function draw(){
+ctx.clearRect(0,0,W,H);
+// ground: ash plain with grid stones
+ctx.fillStyle='#241b12';ctx.fillRect(0,0,W,H);
+ctx.strokeStyle='rgba(255,210,130,0.06)';
+for(var gx=0;gx<W;gx+=48){ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,H);ctx.stroke()}
+for(var gy=0;gy<H;gy+=48){ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(W,gy);ctx.stroke()}
+ctx.fillStyle='rgba(0,0,0,0.25)';
+for(var i=0;i<26;i++){var sx=(i*173)%W,sy=(i*97)%H;ctx.beginPath();ctx.arc(sx,sy,3+(i%4),0,7);ctx.fill()}
+if(!S){ctx.fillStyle='#ffcf6e';ctx.font='26px sans-serif';ctx.textAlign='center';ctx.fillText('先在上方选择职业，开启战纪',W/2,H/2);return}
+// drops with light pillars
+for(var di=0;di<drops.length;di++){var d=drops[di];var col=RARITY[d.item.r].c;var hgt=70+d.item.r*36+Math.sin(Date.now()/180+di)*6;
+var grad=ctx.createLinearGradient(0,d.y-hgt,0,d.y);grad.addColorStop(0,'rgba(255,255,255,0)');grad.addColorStop(1,col);
+ctx.fillStyle=grad;ctx.globalAlpha=0.75;ctx.fillRect(d.x-7,d.y-hgt,14,hgt);ctx.globalAlpha=1;
+ctx.fillStyle=col;ctx.beginPath();ctx.arc(d.x,d.y,8,0,7);ctx.fill();ctx.fillStyle='#14100c';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillText('装',d.x,d.y+3.5)}
+// monsters
+for(var mi=0;mi<monsters.length;mi++){var m=monsters[mi];
+ctx.fillStyle=m.hitT>0?'#ffffff':m.color;ctx.beginPath();ctx.arc(m.x,m.y,m.r,0,7);ctx.fill();
+ctx.fillStyle='#14100c';ctx.beginPath();ctx.arc(m.x-m.r*0.35,m.y-3,3,0,7);ctx.arc(m.x+m.r*0.35,m.y-3,3,0,7);ctx.fill();
+ctx.fillStyle='#3a1414';ctx.fillRect(m.x-m.r,m.y-m.r-11,m.r*2,5);ctx.fillStyle='#e33';ctx.fillRect(m.x-m.r,m.y-m.r-11,m.r*2*Math.max(0,m.hp/m.maxhp),5);
+ctx.fillStyle='#f3e9d2';ctx.font=(m.boss?'bold 14px':'11px')+' sans-serif';ctx.textAlign='center';ctx.fillText(m.name,m.x,m.y-m.r-16)}
+// player
+var c=CLASSES[S.cls];
+ctx.fillStyle='rgba(0,0,0,0.35)';ctx.beginPath();ctx.ellipse(S.x,S.y+20,18,6,0,0,7);ctx.fill();
+ctx.fillStyle=c.color;ctx.beginPath();ctx.arc(S.x,S.y,18,0,7);ctx.fill();
+ctx.strokeStyle='#ffcf6e';ctx.lineWidth=2.5;ctx.stroke();ctx.lineWidth=1;
+ctx.fillStyle='#fff';ctx.font='bold 13px sans-serif';ctx.textAlign='center';ctx.fillText(c.name,S.x,S.y-28);
+// shots
+for(var si=0;si<shots.length;si++){var s2=shots[si];ctx.fillStyle=s2.c;ctx.beginPath();ctx.arc(s2.x,s2.y,5,0,7);ctx.fill()}
+// floats
+for(var fi=floats.length-1;fi>=0;fi--){var f=floats[fi];ctx.fillStyle=f.c;ctx.font='bold 14px sans-serif';ctx.textAlign='center';ctx.fillText(f.txt,f.x,f.y);f.y-=0.7;f.t--;if(f.t<=0)floats.splice(fi,1)}
+}
+function loop(){step();draw();rafId=requestAnimationFrame(loop)}
+window.addEventListener('keydown',function(ev){var k=ev.key.toLowerCase();keys[k]=true;
+if(k==='j')doAttack();if(k==='k')doSkill();if(k==='h')doPotion();
+if(['arrowup','arrowdown','arrowleft','arrowright',' '].indexOf(k)>=0)ev.preventDefault()});
+window.addEventListener('keyup',function(ev){keys[ev.key.toLowerCase()]=false});
+cv.addEventListener('click',function(ev){var r=cv.getBoundingClientRect();var x=(ev.clientX-r.left)*W/r.width,y=(ev.clientY-r.top)*H/r.height;
+for(var i=0;i<monsters.length;i++){if(Math.hypot(monsters[i].x-x,monsters[i].y-y)<monsters[i].r+10){window._target=null;doAttack();return}}
+window._target={x:x,y:y}});
+cv.addEventListener('touchstart',function(ev){var t=ev.touches[0];var r=cv.getBoundingClientRect();window._target={x:(t.clientX-r.left)*W/r.width,y:(t.clientY-r.top)*H/r.height}},{passive:true});
+(function(){var old=load();if(old){document.getElementById('oldSave').textContent='检测到存档：'+(CLASSES[old.cls]?CLASSES[old.cls].name:'')+' Lv.'+old.lv+'，点上方同职业可继续。'}draw()})();
+</script>
+</body>
+</html>
